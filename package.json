@@ -1,0 +1,19 @@
+{
+  "name": "reactive-store",
+  "version": "0.0.1",
+  "description": "A store based off Rx",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chorobin/reactive-store.git"
+  },
+  "author": "Christopher Horobin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chorobin/reactive-store/issues"
+  },
+  "homepage": "https://github.com/chorobin/reactive-store#readme"
+}
