@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/chorobin/reactive-store/issues"
   },
-  "homepage": "https://github.com/chorobin/reactive-store#readme"
+  "homepage": "https://github.com/chorobin/reactive-store#readme",
+  "dependencies": {
+    "rxjs": "^6.2.1"
+  }
 }
