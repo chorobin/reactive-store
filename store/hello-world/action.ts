@@ -1,8 +1,10 @@
-import { Action } from "../../lib/action";
+import { ActionCreator } from "../../lib/action";
 
 export enum HelloWorldActionType {
   SayHello = "SAY_HELLO",
 }
 
-export const sayHello: Action<HelloWorldState> = (state) => ({ sayHello: !state.sayHello });
-
+export const sayHello: ActionCreator<HelloWorldActionType.SayHello, string> = (payload: string) => ({
+  type: HelloWorldActionType.SayHello,
+  payload,
+});

@@ -3,9 +3,8 @@ import { sayHello } from "../../store/hello-world/action";
 import { helloWorldConnect } from "../../store/hello-world/connect";
 import { HelloWorldComponent } from "../../components/hello-world/hello-world-component";
 
-const mapStateToProps = (state: HelloWorldState) => ({ sayHello: state.sayHello, anotherProp: "hi" });
-const mapDispatchToProps = (dispatch: Dispatch<HelloWorldState>) => ({ onSayHello: () => dispatch(sayHello) });
-
-export const helloWorldComponentConnector = helloWorldConnect(mapStateToProps, mapDispatchToProps);
+export const helloWorldComponentConnector = helloWorldConnect((state) => ({ sayHello: state.sayHello, anotherProp: "hi" }), {
+  onSayHello: () => sayHello("hi"),
+});
 
 export const HelloWorldContainer = helloWorldComponentConnector(HelloWorldComponent);
