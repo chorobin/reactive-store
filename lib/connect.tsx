@@ -1,23 +1,32 @@
 import { Store } from "./store";
 import * as React from "react";
 import { Subscription } from "rxjs";
-import { Reducers, PayloadOfReducer } from "./reducer";
-import { ActionCreator, PayloadOfActionCreator } from "./action";
+import { Reducers } from "./reducer";
+import { PayloadOfActionCreator } from "./action";
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
-type ActionProps<TState, TReducers extends Reducers<TState>> = { [key: string]: ActionCreator<string, PayloadOfReducer<TReducers[keyof TReducers]>> };
+type MapActionProps<TActionProps> = { [K in keyof TActionProps]: (payload: PayloadOfActionCreator<TActionProps[K]>) => void };
 
-type MapActionProps<TState, TReducers extends Reducers<TState>, TDispatchProps extends ActionProps<TState, TReducers>> = {
-  [K in keyof TDispatchProps]: (payload: PayloadOfActionCreator<TDispatchProps[K]>) => void
+type SelectorProps<TState> = { [key: string]: (state: TState) => unknown };
+
+const mapSelectorProps = <TState, TStateProps extends SelectorProps<TState>>(state: TState, stateProps: TStateProps) => {
+  const props: any = {};
+
+  for (const key in stateProps) {
+    const selector = stateProps[key];
+    props[key] = selector(state);
+  }
+
+  return props;
 };
 
-const mapActionProps = <TState, TReducers extends Reducers<TState>>(store: Store<TState, TReducers>, actionProps: ActionProps<TState, TReducers>) => {
-  let dispatchProps: MapActionProps<TState, TReducers, ActionProps<TState, TReducers>> = {};
+const mapActionProps = <TState, TReducers, TActionProps>(store: Store<TState, TReducers>, actionProps: TActionProps) => {
+  const dispatchProps: any = {};
 
   for (const key in actionProps) {
     dispatchProps[key] = (payload) => {
-      const action = actionProps[key](payload);
+      const action = (actionProps[key] as any)(payload);
       store.dispatch(action as any);
     };
   }
@@ -26,17 +35,20 @@ const mapActionProps = <TState, TReducers extends Reducers<TState>>(store: Store
 };
 
 export const connect = <TState, TReducers extends Reducers<TState>>(store: Store<TState, TReducers>) => <
-  TStateProps,
-  TActionProps extends ActionProps<TState, TReducers>
+  TSelectorProps extends SelectorProps<TState>,
+  TActionProps
 >(
-  mapStateToProps: (state: TState) => TStateProps,
+  stateProps: TSelectorProps,
   actionProps: TActionProps,
-) => <TProps extends TStateProps & MapActionProps<TState, TReducers, TActionProps>, ExternalProps = Omit<TProps, keyof TStateProps | keyof TActionProps>>(
+) => <
+  TProps extends Pick<TProps, keyof TSelectorProps> & MapActionProps<TActionProps>,
+  ExternalProps = Omit<TProps, keyof TSelectorProps | keyof TActionProps>
+>(
   Component: React.ComponentType<TProps>,
 ): React.ComponentType<ExternalProps> => {
   const dispatchProps = mapActionProps(store, actionProps);
 
-  return class extends React.Component<ExternalProps, { subscription: Subscription; stateProps: TStateProps }> {
+  return class extends React.Component<ExternalProps, { subscription: Subscription; stateProps: Pick<TProps, keyof TSelectorProps> }> {
     public constructor(props: ExternalProps) {
       super(props);
     }
@@ -44,7 +56,7 @@ export const connect = <TState, TReducers extends Reducers<TState>>(store: Store
     public componentDidMount(): void {
       store.state$.subscribe((state) => {
         this.setState({
-          stateProps: mapStateToProps(state),
+          stateProps: mapSelectorProps(state, stateProps),
         });
       });
     }
@@ -56,9 +68,7 @@ export const connect = <TState, TReducers extends Reducers<TState>>(store: Store
     }
 
     public render(): JSX.Element {
-      const WrappedComponent = (Component as unknown) as React.ComponentType<
-        ExternalProps & TStateProps & MapActionProps<TState, TReducers, ActionProps<TState, TReducers>>
-      >;
+      const WrappedComponent = (Component as unknown) as React.ComponentType<ExternalProps & Pick<TProps, keyof TSelectorProps> & MapActionProps<TActionProps>>;
       return this.state && <WrappedComponent {...this.props} {...this.state.stateProps} {...dispatchProps} />;
     }
   };

@@ -1,10 +1,16 @@
-import { Dispatch } from "../../lib/store";
-import { sayHello } from "../../store/hello-world/action";
+import { sayHelloAction } from "../../store/hello-world/action";
 import { helloWorldConnect } from "../../store/hello-world/connect";
 import { HelloWorldComponent } from "../../components/hello-world/hello-world-component";
+import { sayHelloSelector } from "../../store/hello-world/selector";
 
-export const helloWorldComponentConnector = helloWorldConnect((state) => ({ sayHello: state.sayHello, anotherProp: "hi" }), {
-  onSayHello: () => sayHello("hi"),
-});
+const selectors = {
+  sayHello: sayHelloSelector,
+  anotherProp: (state: HelloWorldState) => "hi",
+};
 
+const actions = {
+  onSayHello: sayHelloAction,
+};
+
+export const helloWorldComponentConnector = helloWorldConnect(selectors, actions);
 export const HelloWorldContainer = helloWorldComponentConnector(HelloWorldComponent);

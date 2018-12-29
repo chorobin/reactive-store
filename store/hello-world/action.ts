@@ -4,7 +4,6 @@ export enum HelloWorldActionType {
   SayHello = "SAY_HELLO",
 }
 
-export const sayHello: ActionCreator<HelloWorldActionType.SayHello, string> = (payload: string) => ({
+export const sayHelloAction: ActionCreator<HelloWorldActionType.SayHello> = () => ({
   type: HelloWorldActionType.SayHello,
-  payload,
 });

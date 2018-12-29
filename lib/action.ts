@@ -6,4 +6,8 @@ export type ActionCreator<TActionType extends string = string, TPayload = null> 
   ? (() => Action<TActionType>)
   : ((payload: TPayload) => Action<TActionType, TPayload>);
 
-export type PayloadOfActionCreator<TActionCreator> = TActionCreator extends ActionCreator<infer TActionType, infer TPayload> ? TPayload : never;
+export type PayloadOfActionCreator<TActionCreator> = TActionCreator extends ActionCreator<infer TActionType, infer TPayload>
+  ? (TPayload extends {} ? null : TPayload)
+  : never;
+
+export type ActionTypeOfActionCreator<TActionCreator> = TActionCreator extends ActionCreator<infer TActionType, infer TPayload> ? TActionType : never;
