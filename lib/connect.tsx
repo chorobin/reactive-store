@@ -1,5 +1,5 @@
-import { Store, Dispatch } from "./store";
 import * as React from "react";
+import { Store } from "./store";
 import { Subscription } from "rxjs";
 import { Reducers } from "./reducer";
 import { ActionCreator } from "./action";
@@ -22,8 +22,8 @@ const mapSelectorProps = <TState, TSelectorProps extends SelectorProps<TState>, 
   return stateProps;
 };
 
-const mapActionProps = <TState, TReducers, TActionProps, TProps, TActionKeys extends keyof TProps>(
-  store: Store<TState, TReducers>,
+const mapActionProps = <TState, TReducers, TActionProps, TProps, TActionKeys extends keyof TProps, TActions>(
+  store: Store<TState, TReducers, TActions>,
   actionProps: TActionProps,
 ) => {
   const dispatchProps = Object.keys(actionProps).reduce(
@@ -37,7 +37,7 @@ const mapActionProps = <TState, TReducers, TActionProps, TProps, TActionKeys ext
   return dispatchProps;
 };
 
-export const connect = <TState, TReducers extends Reducers<TState>>(store: Store<TState, TReducers>) => <
+export const connect = <TState, TReducers extends Reducers<TState>, TActions>(store: Store<TState, TReducers, TActions>) => <
   TSelectorProps extends SelectorProps<TState>,
   TActionProps extends ActionProps
 >(
@@ -49,7 +49,7 @@ export const connect = <TState, TReducers extends Reducers<TState>>(store: Store
 >(
   Component: React.ComponentType<TProps>,
 ): React.ComponentType<ExternalProps> => {
-  const dispatchProps = mapActionProps<TState, TReducers, TActionProps, TProps, keyof TActionProps>(store, actionProps);
+  const dispatchProps = mapActionProps<TState, TReducers, TActionProps, TProps, keyof TActionProps, TActions>(store, actionProps);
 
   return class extends React.Component<ExternalProps, { subscription: Subscription; stateProps: Pick<TProps, keyof TSelectorProps> }> {
     public constructor(props: ExternalProps) {

@@ -21,7 +21,7 @@ export const foldMaybe = <T, U>(defaultValue: U, f: (get: T) => U) => (maybe: Ma
   return result;
 };
 
-export const maybe = <T>(get: T) => (get ? just(get) : nothing);
+export const maybe = <T>(get: T) => (get ? just(get) : nothing) as Maybe<T>;
 export const mapMaybe = <T, U>(f: (get: T) => U) => foldMaybe(nothing as Maybe<U>, (get: T) => just(f(get)));
 export const filterMaybe = <T>(f: (get: T) => boolean) => foldMaybe(nothing as Maybe<T>, (get: T) => (f(get) ? just(get) : nothing));
 export const flatMapMaybe = <T, U>(f: (get: T) => Maybe<U>) => foldMaybe(nothing, f);
